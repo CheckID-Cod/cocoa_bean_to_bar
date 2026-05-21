@@ -1170,12 +1170,18 @@
           renderPrice({ priceEURkg, prixMotte, priceUSDtonne, changePct: cacaoData.change_pct });
           const now = new Date();
           const time = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-          document.getElementById('plwUpdated').textContent = 'Cours du ' + getDateFR();
+          const updatedEl = document.getElementById('plwUpdated');
+          if (updatedEl) {
+            updatedEl.textContent = 'Cours du ' + getDateFR();
+          }
 
         } catch(e) {
           document.getElementById('plwBourse').textContent = '—';
           document.getElementById('plwTotal').textContent = '—';
-          document.getElementById('plwUpdated').textContent = 'Erreur de chargement';
+          const updatedEl = document.getElementById('plwUpdated');
+          if (updatedEl) {
+            updatedEl.textContent = 'Erreur de chargement';
+          }
           document.getElementById('plwDot').className = 'plw-dot error';
           console.error('Prix cacao:', e);
         }
@@ -1215,7 +1221,10 @@
         const cached = loadFromCache();
         if (cached) {
           renderPrice(cached);
-          document.getElementById('plwUpdated').textContent = 'Cours du ' + getDateFR();
+          const updatedEl = document.getElementById('plwUpdated');
+          if (updatedEl) {
+            updatedEl.textContent = 'Cours du ' + getDateFR();
+          }
           return;
         }
         // Sinon appel API (1x par jour max)
