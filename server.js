@@ -10,11 +10,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Contact form endpoint ────────────────────────────────────────────────────
 app.post('/send-email', async (req, res) => {
-  const { from, to, reply_to, subject, html } = req.body;
+  const { to, reply_to, subject, html } = req.body;
 
-  if (!from || !to || !subject || !html) {
+  if (!to || !subject || !html) {
     return res.status(400).json({ error: 'Champs manquants.' });
   }
+
+  const from = 'Motte Chocolat <onboarding@resend.dev>';
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
