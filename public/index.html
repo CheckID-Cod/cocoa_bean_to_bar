@@ -797,6 +797,19 @@
 
   @media (max-width: 900px) {
     nav img { height: 60px; }
+    /* Producteurs : texte en haut, diaporama en bas */
+    .trazabilidad-grid #trazabilidad-text { order: 1; }
+    .trazabilidad-grid #mc2Wrap          { order: 2; }
+    /* Premier client : 1 colonne, diaporama sous le texte */
+    .pc-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .pc-grid > div:last-child {
+      order: 2;
+    }
+    .pc-grid > div:first-child {
+      order: 1;
+    }
     .hero, .two-col, .prix-section, .lab-section, .stock-section { grid-template-columns: 1fr; }
     .cards-grid, .process-steps, .pricing-grid { grid-template-columns: 1fr 1fr; }
     nav, section.content-section, .prix-section, footer, .pricing-section, .stock-section, .lab-section { padding: 2rem; }
@@ -1348,7 +1361,7 @@ mcSize();window.addEventListener('resize',mcSize);mcT=setInterval(function(){mcI
 
 <!-- TRAZABILIDAD -->
 <section class="content-section">
-  <div class="two-col fade-up">
+  <div class="two-col trazabilidad-grid fade-up">
     <div id="mc2Wrap" style="position:relative;overflow:hidden;height:0;padding-bottom:75%;background:#d3c4bb;">
       <div id="mc2Track" style="display:flex;position:absolute;top:0;left:0;width:100%;height:100%;"><div style="height:100%;flex-shrink:0;flex-grow:0;"><img src="https://static.wixstatic.com/media/3c82e8_43093b2f988647e2b48bd301c482044b~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_b9f773c5c41649bca9c097b9e6294579~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_5e747acbfecb435081b2f0c7a13c8530~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_bdd8e0b6cad14edcaf9c586666150ea9~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_095c9aa013f149378170fc0f0963e527~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_e2b61c22df5f485fa4935866e5dabfc2~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_fc3ff9938df94083b133d737a5283526~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_40562c4a0b7c4ffe9f3ffc43f6562cca~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_79e935a175e44935a148d17f9ad12c87~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_758a298e298740189a2662b92d7ebfef~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_6055a235c0c8496391257ca2f61f43a8~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_6dbc35de4784452387ce16bdcd2e0aee~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div><div style="height:100%;flex-shrink:0;flex-grow:0;"><img loading="lazy" src="https://static.wixstatic.com/media/3c82e8_c6ed5c9d484340b99b6462e128768fcd~mv2.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"></div></div>
       <button onclick="mc2Go(mc2I-1)" style="position:absolute;top:50%;left:0;transform:translateY(-50%);background:rgba(61,19,21,0.7);color:#fff;border:none;font-size:2rem;width:44px;height:60px;cursor:pointer;z-index:10;">&#8249;</button>
@@ -1362,7 +1375,7 @@ mcSize();window.addEventListener('resize',mcSize);mcT=setInterval(function(){mcI
     function mc2Go(n){mc2I=((n%mc2N)+mc2N)%mc2N;mc2Move();clearInterval(mc2T);mc2T=setInterval(function(){mc2I=(mc2I+1)%mc2N;mc2Move();},4000);}
     mc2Size();window.addEventListener('resize',mc2Size);mc2T=setInterval(function(){mc2I=(mc2I+1)%mc2N;mc2Move();},4000);
     </script>
-    <div>
+    <div id="trazabilidad-text">
       <h2 class="section-title">Nous connaissons <em>nos<br>producteurs</em> — en personne.</h2>
       <p class="section-body">Nous visitons chaque finca et y revenons régulièrement pour suivre le cycle du cacao. Ce sont autant d'occasions pour partager de bons moments avec les familles de nos producteurs dont beaucoup sont devenus des amis. Nous n'achetons pas de cacao anonyme — nous garantissons des lots par finca, avec un terroir unique et une traçabilité complète.</p>
     </div>
@@ -1727,7 +1740,7 @@ mcSize();window.addEventListener('resize',mcSize);mcT=setInterval(function(){mcI
   <!-- Fond couleur -->
   <div style="position:absolute;inset:0;background:var(--cafe-dark);"></div>
   <!-- Contenu -->
-  <div style="position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:560px;">
+  <div class="pc-grid" style="position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:560px;">
     <!-- Texte gauche -->
     <div style="display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem 4rem 5rem;">
       <span class="section-eyebrow light" style="margin-bottom:0.8rem;">Bean to bar</span>
@@ -1790,7 +1803,7 @@ mcSize();window.addEventListener('resize',mcSize);mcT=setInterval(function(){mcI
           <li style="color:#fff;font-size:1rem;line-height:1.75;">Le prix des fèves est celui affiché sur notre page au moment de votre demande. Nous le maintenons pendant <strong style="color:var(--beige-light);">72&nbsp;h</strong> — le temps d'inventorier les fèves en cours de récolte chez nos producteurs et de revenir vers vous.</li>
           <li style="color:#fff;font-size:1rem;line-height:1.75;">Si vous acceptez notre proposition, nous générons alors la facture depuis notre filiale en France (5,5&nbsp;% TVA appliquée au cacao).</li>
           <li style="color:#fff;font-size:1rem;line-height:1.75;">Vous disposez ensuite de <strong style="color:var(--beige-light);">48&nbsp;h</strong> pour réaliser le paiement de l'acompte de <strong style="color:var(--beige-light);">60&nbsp;%</strong>. Les 40&nbsp;% restants devront être réglés le jour de la libération des fèves au Havre.</li>
-          <li style="color:#fff;font-size:1rem;line-height:1.75;">Liliana parle Espagnol / Français / Anglais et reste joignable par email du lundi au vendredi dès la commande passée. Réponse en moins de <strong style="color:var(--beige-light);">24&nbsp;h</strong> 🙂</li>
+          <li style="color:#fff;font-size:1rem;line-height:1.75;">Liliana parle Espagnol / Français / Anglais et reste joignable par email du lundi au vendredi dès la commande passée. Réponse sous <strong style="color:var(--beige-light);">24&nbsp;h</strong> 🙂</li>
         </ol>
 
         <!-- Bloc échantillons -->
@@ -1965,7 +1978,7 @@ textarea.mc-input { resize: vertical; min-height: 110px; }
         msgBox.style.background = 'rgba(76,175,80,0.18)';
         msgBox.style.border = '1px solid rgba(76,175,80,0.4)';
         msgBox.style.color = '#a5d6a7';
-        msgBox.innerHTML = '✓ Votre message a bien été envoyé. Nous vous répondrons dans les 24H du lundi au vendredi.';
+        msgBox.innerHTML = '✓ Votre message a bien été envoyé. Nous vous répondrons sous 24H du lundi au vendredi.';
         document.getElementById('mc-contact-form').reset();
         btn.textContent = 'Message envoyé !';
       } else {
