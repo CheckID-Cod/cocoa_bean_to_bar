@@ -16,7 +16,7 @@ app.post('/send-email', async (req, res) => {
     return res.status(400).json({ error: 'Champs manquants.' });
   }
 
-  const from = 'Motte Chocolat <sales@mottechocolat.com>';
+  const from = 'Motte Chocolat <hello@mottechocolat.com>';
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
