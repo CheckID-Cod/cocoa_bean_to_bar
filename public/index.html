@@ -796,23 +796,62 @@
     .col-img::after { display: none; }
 
   @media (max-width: 900px) {
-    .hero, .two-col, .prix-section, .lab-section, .stock-section { grid-template-columns: 1fr; }
-    .cards-grid, .process-steps, .pricing-grid { grid-template-columns: 1fr 1fr; }
-    nav, section.content-section, .prix-section, footer, .pricing-section, .stock-section, .lab-section { padding: 2rem; }
-    .hero-left { padding: 5rem 2rem 3rem; }
-    footer { grid-template-columns: 1fr; }
+
+    .hero,
+    .two-col,
+    .prix-section,
+    .lab-section,
+    .stock-section {
+      grid-template-columns: 1fr;
+    }
+
+    .cards-grid,
+    .process-steps,
+    .pricing-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    nav,
+    section.content-section,
+    .prix-section,
+    footer,
+    .pricing-section,
+    .stock-section,
+    .lab-section {
+      padding: 2rem;
+    }
+
+    .hero-left {
+      padding: 5rem 2rem 3rem;
+    }
+
+    footer {
+      grid-template-columns: 1fr;
+    }
+
+    /* FIX BOTONES MOBILE */
+    .hero-cta,
+    .nav-cta,
+    .btn-white {
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      padding: 1rem 2rem;
+      white-space: nowrap;
+    }
 
     /* Variétés : image au-dessus de la liste */
     #variedades-grid {
       grid-template-columns: 1fr !important;
     }
+
     #variedades-img {
       position: static !important;
       width: 100% !important;
     }
 
     /* Process : étapes en colonne verticale */
-    #process-row1, #process-row2 {
+    #process-row1,
+    #process-row2 {
       grid-template-columns: 1fr !important;
     }
 
