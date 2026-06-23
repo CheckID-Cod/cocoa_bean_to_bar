@@ -876,7 +876,7 @@
       </div>
       <div class="plw-detail">
         <div class="plw-detail-row">
-          <span class="plw-detail-label">Cours de la bourse aujourd'hui</span>
+          <span class="plw-detail-label">Prix ICE réf. + taux €/$ en direct</span>
           <span class="plw-detail-values">
             <span class="plw-detail-eur" id="plwBourse">—</span>
 
@@ -1139,123 +1139,97 @@
     }
     </style>
 
-    <script>
-    (function() {
-      const API_KEY = 'lHTa1Z31RdNDwvU2MpumM1JEwcn8HV6gi8Y3v1jX';
-      const MARGE_EUR_KG = 6.30;
+<script>
+(function() {
+  const MARGE_EUR_KG = 6.30;
+  // Prix de référence ICE cacao en USD/tonne — à mettre à jour manuellement si besoin
+  const CACAO_USD_TONNE = 9200;
 
-      function getDateFR() {
-        return new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'});
-      }
+  function getDateFR() {
+    return new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'});
+  }
 
-      function renderPrice(data) {
-        const { priceEURkg, prixMotte } = data;
+  function renderPrice(data) {
+    const { priceEURkg, prixMotte } = data;
+    const safe = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    safe('heroPrixDate', getDateFR());
+    safe('heroPrixEuros', prixMotte.toFixed(2).replace('.', ',') + ' €/kg HT');
+    safe('heroPrixSub', 'livré au Havre le 10/09/2026');
+    safe('plwBourse', priceEURkg.toFixed(2).replace('.', ',') + ' €/kg');
+    safe('plwTotal', prixMotte.toFixed(2).replace('.', ',') + ' €/kg HT');
+    const dot = document.getElementById('plwDot');
+    if(dot) dot.className = 'plw-dot live';
+  }
 
-        const safe = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  async function fetchCacaoPrice() {
+    try {
+      // Taux de change USD→EUR via Frankfurter (gratuit, sans clé)
+      const fxRes = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
+      const fxData = await fxRes.json();
+      const eurUsd = (fxData.rates && fxData.rates.EUR) ? fxData.rates.EUR : 0.92;
 
-        safe('heroPrixDate', getDateFR());
-        safe('heroPrixEuros', prixMotte.toFixed(2).replace('.', ',') + ' €/kg HT');
-        safe('heroPrixSub', 'livré au Havre le 10/09/2026');
-        safe('plwBourse', priceEURkg.toFixed(2).replace('.', ',') + ' €/kg');
-        safe('plwTotal', prixMotte.toFixed(2).replace('.', ',') + ' €/kg HT');
+      const priceEURkg = (CACAO_USD_TONNE * eurUsd) / 1000;
+      const prixMotte  = priceEURkg + MARGE_EUR_KG;
 
-        const el = document.getElementById('plwDot');
-        if(el) el.className = 'plw-dot live';
-      }
+      saveToCache({ priceEURkg, prixMotte });
+      renderPrice({ priceEURkg, prixMotte });
 
-      async function fetchCacaoPrice() {
-        try {
-          // 1. Prix cacao ICE (USD/tonne)
-          const [cacaoRes, fxRes] = await Promise.all([
-            fetch('https://api.api-ninjas.com/v1/commodityprice?name=cocoa', {
-              headers: { 'X-Api-Key': API_KEY }
-            }),
-            fetch('https://api.api-ninjas.com/v1/exchangerate?pair=USD_EUR', {
-              headers: { 'X-Api-Key': API_KEY }
-            })
-          ]);
+      const updatedEl = document.getElementById('plwUpdated');
+      if(updatedEl) updatedEl.textContent = 'Cours du ' + getDateFR();
 
-          const cacaoData = await cacaoRes.json();
-          const fxData = await fxRes.json();
+    } catch(e) {
+      const safe = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+      safe('plwBourse', '—');
+      safe('plwTotal', '—');
+      const updatedEl = document.getElementById('plwUpdated');
+      if(updatedEl) updatedEl.textContent = 'Erreur de chargement';
+      const dot = document.getElementById('plwDot');
+      if(dot) dot.className = 'plw-dot error';
+      console.error('Prix cacao:', e);
+    }
+  }
 
-          if (!cacaoData || !cacaoData.price) throw new Error('No price');
+  // Cache par demi-journée (AM/PM) — nouvelles clés v2 pour éviter les conflits
+  const CACHE_KEY      = 'motte_prix_cache_v2';
+  const CACHE_DATE_KEY = 'motte_prix_date_v2';
 
-          const priceUSDtonne = cacaoData.price;   // USD/tonne
-          const eurUsd = fxData.exchange_rate || 0.92;
-          const priceEURkg = (priceUSDtonne * eurUsd) / 1000;  // EUR/kg
-          const prixMotte = priceEURkg + MARGE_EUR_KG;
+  function getTodayStr() {
+    const now  = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const half = now.getUTCHours() < 12 ? 'AM' : 'PM';
+    return date + '_' + half;
+  }
 
-          // Sauvegarder en cache (1 appel/jour)
-          saveToCache({ priceEURkg, prixMotte, priceUSDtonne, changePct: cacaoData.change_pct });
+  function loadFromCache() {
+    try {
+      const cachedDate = localStorage.getItem(CACHE_DATE_KEY);
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      if(cachedDate === getTodayStr() && cachedData) return JSON.parse(cachedData);
+    } catch(e) {}
+    return null;
+  }
 
-          // Afficher via renderPrice + heure de mise à jour
-          renderPrice({ priceEURkg, prixMotte, priceUSDtonne, changePct: cacaoData.change_pct });
-          const now = new Date();
-          const time = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-          const updatedEl = document.getElementById('plwUpdated');
-          if (updatedEl) {
-            updatedEl.textContent = 'Cours du ' + getDateFR();
-          }
+  function saveToCache(data) {
+    try {
+      localStorage.setItem(CACHE_DATE_KEY, getTodayStr());
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    } catch(e) {}
+  }
 
-        } catch(e) {
-          document.getElementById('plwBourse').textContent = '—';
-          document.getElementById('plwTotal').textContent = '—';
-          const updatedEl = document.getElementById('plwUpdated');
-          if (updatedEl) {
-            updatedEl.textContent = 'Erreur de chargement';
-          }
-          document.getElementById('plwDot').className = 'plw-dot error';
-          console.error('Prix cacao:', e);
-        }
-      }
+  async function fetchCacaoPriceWithCache() {
+    const cached = loadFromCache();
+    if(cached) {
+      renderPrice(cached);
+      const updatedEl = document.getElementById('plwUpdated');
+      if(updatedEl) updatedEl.textContent = 'Cours du ' + getDateFR();
+      return;
+    }
+    await fetchCacaoPrice();
+  }
 
-      // 1 seul appel par jour — cache dans localStorage
-      const CACHE_KEY = 'motte_prix_cache';
-      const CACHE_DATE_KEY = 'motte_prix_date';
-
-      function getTodayStr() {
-        var now = new Date();
-        var date = now.toISOString().slice(0, 10); // 'YYYY-MM-DD'
-        var half = now.getUTCHours() < 12 ? 'AM' : 'PM'; // matin ou après-midi
-        return date + '_' + half; // 'YYYY-MM-DD_AM' ou 'YYYY-MM-DD_PM'
-      }
-
-      function loadFromCache() {
-        try {
-          const cachedDate = localStorage.getItem(CACHE_DATE_KEY);
-          const cachedData = localStorage.getItem(CACHE_KEY);
-          if (cachedDate === getTodayStr() && cachedData) {
-            return JSON.parse(cachedData);
-          }
-        } catch(e) {}
-        return null;
-      }
-
-      function saveToCache(data) {
-        try {
-          localStorage.setItem(CACHE_DATE_KEY, getTodayStr());
-          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        } catch(e) {}
-      }
-
-      async function fetchCacaoPriceWithCache() {
-        // Vérifier le cache d'abord
-        const cached = loadFromCache();
-        if (cached) {
-          renderPrice(cached);
-          const updatedEl = document.getElementById('plwUpdated');
-          if (updatedEl) {
-            updatedEl.textContent = 'Cours du ' + getDateFR();
-          }
-          return;
-        }
-        // Sinon appel API (1x par jour max)
-        await fetchCacaoPrice();
-      }
-
-      fetchCacaoPriceWithCache();
-    })();
-    </script>
+  fetchCacaoPriceWithCache();
+})();
+</script>
 
   </div>
   <div class="hero-right">
