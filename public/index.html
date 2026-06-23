@@ -863,7 +863,7 @@
     <span style="display:block;margin-top:0.4rem;">Prix indexé sur le cours de la bourse — différentiel fixe de 6,30 €/kg</span></p>
     <div class="hero-price-badge">
       <span class="price-main">Prix actuel <span id="heroPrixDate" style="font-size:1.1rem;opacity:0.7;"></span></span>
-      <span id="heroPrixEuros" style="font-size:1.4rem;font-weight:700;color:#fff;display:block;">—</span>
+      <span id="heroPrixEuros" style="font-size:1.4rem;font-weight:700;color:#fff;display:block;">10,33 €/kg HT</span>
       <span id="heroPrixSub" style="font-size: 1rem;font-weight:300;color:rgba(255,255,255,0.7);display:block;margin-top:0.2rem;letter-spacing:0.04em;">livré au Havre le 10/09/2026</span>
     </div>
 
@@ -878,7 +878,7 @@
         <div class="plw-detail-row">
           <span class="plw-detail-label">Prix ICE réf. + taux €/$ en direct</span>
           <span class="plw-detail-values">
-            <span class="plw-detail-eur" id="plwBourse">—</span>
+            <span class="plw-detail-eur" id="plwBourse">4,03 €/kg</span>
 
           </span>
         </div>
@@ -892,7 +892,7 @@
         <div class="plw-detail-row plw-detail-total-row">
           <span class="plw-detail-label plw-detail-total-label">Votre prix</span>
           <span class="plw-detail-values">
-            <span class="plw-value plw-total" id="plwTotal">—</span>
+            <span class="plw-value plw-total" id="plwTotal">10,33 €/kg HT</span>
           </span>
         </div>
       </div>
@@ -1139,97 +1139,7 @@
     }
     </style>
 
-<script>
-(function() {
-  const MARGE_EUR_KG = 6.30;
-  // Prix de référence ICE cacao en USD/tonne — à mettre à jour manuellement si besoin
-  const CACAO_USD_TONNE = 9200;
 
-  function getDateFR() {
-    return new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'});
-  }
-
-  function renderPrice(data) {
-    const { priceEURkg, prixMotte } = data;
-    const safe = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-    safe('heroPrixDate', getDateFR());
-    safe('heroPrixEuros', prixMotte.toFixed(2).replace('.', ',') + ' €/kg HT');
-    safe('heroPrixSub', 'livré au Havre le 10/09/2026');
-    safe('plwBourse', priceEURkg.toFixed(2).replace('.', ',') + ' €/kg');
-    safe('plwTotal', prixMotte.toFixed(2).replace('.', ',') + ' €/kg HT');
-    const dot = document.getElementById('plwDot');
-    if(dot) dot.className = 'plw-dot live';
-  }
-
-  async function fetchCacaoPrice() {
-    try {
-      // Taux de change USD→EUR via Frankfurter (gratuit, sans clé)
-      const fxRes = await fetch('https://api.frankfurter.app/latest?from=USD&to=EUR');
-      const fxData = await fxRes.json();
-      const eurUsd = (fxData.rates && fxData.rates.EUR) ? fxData.rates.EUR : 0.92;
-
-      const priceEURkg = (CACAO_USD_TONNE * eurUsd) / 1000;
-      const prixMotte  = priceEURkg + MARGE_EUR_KG;
-
-      saveToCache({ priceEURkg, prixMotte });
-      renderPrice({ priceEURkg, prixMotte });
-
-      const updatedEl = document.getElementById('plwUpdated');
-      if(updatedEl) updatedEl.textContent = 'Cours du ' + getDateFR();
-
-    } catch(e) {
-      const safe = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-      safe('plwBourse', '—');
-      safe('plwTotal', '—');
-      const updatedEl = document.getElementById('plwUpdated');
-      if(updatedEl) updatedEl.textContent = 'Erreur de chargement';
-      const dot = document.getElementById('plwDot');
-      if(dot) dot.className = 'plw-dot error';
-      console.error('Prix cacao:', e);
-    }
-  }
-
-  // Cache par demi-journée (AM/PM) — nouvelles clés v2 pour éviter les conflits
-  const CACHE_KEY      = 'motte_prix_cache_v2';
-  const CACHE_DATE_KEY = 'motte_prix_date_v2';
-
-  function getTodayStr() {
-    const now  = new Date();
-    const date = now.toISOString().slice(0, 10);
-    const half = now.getUTCHours() < 12 ? 'AM' : 'PM';
-    return date + '_' + half;
-  }
-
-  function loadFromCache() {
-    try {
-      const cachedDate = localStorage.getItem(CACHE_DATE_KEY);
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      if(cachedDate === getTodayStr() && cachedData) return JSON.parse(cachedData);
-    } catch(e) {}
-    return null;
-  }
-
-  function saveToCache(data) {
-    try {
-      localStorage.setItem(CACHE_DATE_KEY, getTodayStr());
-      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-    } catch(e) {}
-  }
-
-  async function fetchCacaoPriceWithCache() {
-    const cached = loadFromCache();
-    if(cached) {
-      renderPrice(cached);
-      const updatedEl = document.getElementById('plwUpdated');
-      if(updatedEl) updatedEl.textContent = 'Cours du ' + getDateFR();
-      return;
-    }
-    await fetchCacaoPrice();
-  }
-
-  fetchCacaoPriceWithCache();
-})();
-</script>
 
   </div>
   <div class="hero-right">
